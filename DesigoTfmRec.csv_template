@@ -1,0 +1,2 @@
+RecId,Tfm,DesigoId,DesigoPropertyId,Name,Description,RealEstate,Building,Section,Floor,ServesRoom,PlacementRoom,SensorType,MeasurementUnit
+RealEstateCoreSensor-1,433.012-OE101-Energy,System1:GmsDevice_2_1414052_121634835,RAQual_Present_Value,433.012-OE101-Energy,Ventilasjon 360.011,RealEst2,1,Section1,01,117,120,Energy,kwh

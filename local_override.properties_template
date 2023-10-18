@@ -1,0 +1,19 @@
+sd.api.prod=true
+sd.api.username=jane-doe
+sd.api.password=strongPassword
+importsensorsQuery.realestates=re1,re2
+
+# CSV SensorMappings
+sensormappings.csv.enabled=false
+sensormappings.csv.directory=sensor-mappings
+sensormappings.csv.filePrefix=Desigo
+
+
+import.start.before.sec=360
+
+# Alerting
+## Slack
+slack_alerting_enabled=true
+slack_token=<token to be set in properties>
+slack_alarm_channel=<to be set in properties>
+slack_warning_channel=< to be set in properties>
