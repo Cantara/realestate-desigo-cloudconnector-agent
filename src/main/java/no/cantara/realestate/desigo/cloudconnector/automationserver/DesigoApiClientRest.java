@@ -49,28 +49,13 @@ public class DesigoApiClientRest implements SdClient {
     private static final String LATEST_BY_DATE = "SampleDateDescending";
     private final NotificationService notificationService;
     private UserToken userToken = null;
-//    private final DesigoApiLogonService logonService;
     private long numberOfTrendSamplesReceived = 0;
     private boolean isHealthy = true;
 
     public DesigoApiClientRest(URI apiUri, NotificationService notificationService) {
         this.apiUri = apiUri;
-//        logonService = null;
-        this.notificationService = notificationService;
-        /*RestClientBuilder.newBuilder()
-                .baseUri(apiUri)
-                .build(DesigoApiLogonService.class);
-
-         */
-    }
-
-    /*
-    protected DesigoApiClientRest(URI apiUri, DesigoApiLogonService logonService, NotificationService notificationService) {
-        this.apiUri = apiUri;
-        this.logonService = logonService;
         this.notificationService = notificationService;
     }
-    */
 
     public static void main(String[] args) throws URISyntaxException, SdLogonFailedException {
 
