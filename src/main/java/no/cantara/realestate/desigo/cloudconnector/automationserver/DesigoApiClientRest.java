@@ -311,6 +311,7 @@ public class DesigoApiClientRest implements SdClient {
             }
             request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
 
+            log.trace("Try to logon to Desigo at uri: {}",refreshTokenUrl);
             CloseableHttpResponse response = httpClient.execute(request);
             try {
                 int httpCode = response.getCode();
@@ -322,17 +323,18 @@ public class DesigoApiClientRest implements SdClient {
                         userToken = RealEstateObjectMapper.getInstance().getObjectMapper().readValue(body, UserToken.class);
                         log.trace("Converted to userToken: {}", userToken);
                         refreshedUserToken = userToken;
+                        log.debug("Logged on to Desigo. Refreshed accessToken. Expires: {}", userToken.getExpires().toString());
                         setHealthy();
                     }
                 } else {
-                    String msg = "Failed to refresh userToken to Metasys at uri: " + request.getRequestUri() +
+                    String msg = "Failed to refresh userToken to Desigo at uri: " + request.getRequestUri() +
                             ". accessToken: " + truncatedAccessToken +
                             ". ResponseCode: " + httpCode +
                             ". ReasonPhrase: " + response.getReasonPhrase();
                     SdLogonFailedException logonFailedException = new SdLogonFailedException(msg);
-                    log.warn("Failed to refresh accessToken on Metasys. Reason {}", logonFailedException.getMessage());
+                    log.warn("Failed to refresh accessToken on Desigo. Reason {}", logonFailedException.getMessage());
                     setUnhealthy();
-                    TemporaryHealthResource.addRegisteredError("Failed to refresh accessToken on Metasys. Reason: " + logonFailedException.getMessage());
+                    TemporaryHealthResource.addRegisteredError("Failed to refresh accessToken on Desigo. Reason: " + logonFailedException.getMessage());
                     throw logonFailedException;
                 }
 
@@ -341,7 +343,7 @@ public class DesigoApiClientRest implements SdClient {
             }
         } catch (IOException e) {
             notificationService.sendAlarm(DESIGO_API,HOST_UNREACHABLE);
-            String msg = "Failed to refresh accessToken on Metasys at uri: " + refreshTokenUrl + ", with accessToken: " + truncatedAccessToken;
+            String msg = "Failed to refresh accessToken on Desigo at uri: " + refreshTokenUrl + ", with accessToken: " + truncatedAccessToken;
             SdLogonFailedException logonFailedException = new SdLogonFailedException(msg, e);
             log.warn(msg);
             setUnhealthy();
@@ -349,7 +351,7 @@ public class DesigoApiClientRest implements SdClient {
             throw logonFailedException;
         } catch (ParseException e) {
             notificationService.sendWarning(DESIGO_API,"Parsing of AccessToken information failed.");
-            String msg = "Failed to refresh accessToken on Metasys at uri: " + refreshTokenUrl + ", with accessToken: " + truncatedAccessToken +
+            String msg = "Failed to refresh accessToken on Desigo at uri: " + refreshTokenUrl + ", with accessToken: " + truncatedAccessToken +
                     ". Failure parsing the response.";
             SdLogonFailedException logonFailedException = new SdLogonFailedException(msg, e);
             log.warn(msg);
@@ -402,15 +404,15 @@ public class DesigoApiClientRest implements SdClient {
                         notificationService.clearService(DESIGO_API);
                     }
                 } else {
-                    String msg = "Failed to logon to Metasys at uri: " + request.getRequestUri() +
+                    String msg = "Failed to logon to Desigo at uri: " + request.getRequestUri() +
                             ". Username: " + username +
                             ". ResponseCode: " + httpCode +
                             ". ReasonPhrase: " + response.getReasonPhrase();
                     SdLogonFailedException logonFailedException = new SdLogonFailedException(msg);
-                    log.warn("Failed to logon to Metasys. Reason {}", logonFailedException.getMessage());
+                    log.warn("Failed to logon to Desigo. Reason {}", logonFailedException.getMessage());
                     setUnhealthy();
                     notificationService.sendWarning(DESIGO_API,LOGON_FAILED);
-                    TemporaryHealthResource.addRegisteredError("Failed to logon to Metasys. Reason: " + logonFailedException.getMessage());
+                    TemporaryHealthResource.addRegisteredError("Failed to logon to Desigo. Reason: " + logonFailedException.getMessage());
                     throw logonFailedException;
                 }
 
@@ -419,7 +421,7 @@ public class DesigoApiClientRest implements SdClient {
             }
         } catch (IOException e) {
             notificationService.sendAlarm(DESIGO_API,HOST_UNREACHABLE);
-            String msg = "Failed to logon to Metasys at uri: " + loginUri + ", with username: " + username;
+            String msg = "Failed to logon to Desigo at uri: " + loginUri + ", with username: " + username;
             SdLogonFailedException logonFailedException = new SdLogonFailedException(msg, e);
             log.warn(msg);
             setUnhealthy();
@@ -427,7 +429,7 @@ public class DesigoApiClientRest implements SdClient {
             throw logonFailedException;
         } catch (ParseException e) {
             notificationService.sendWarning(DESIGO_API,"Parsing of login information failed.");
-            String msg = "Failed to logon to Metasys at uri: " + loginUri + ", with username: " + username +
+            String msg = "Failed to logon to Desigo at uri: " + loginUri + ", with username: " + username +
                     ". Failure parsing the response.";
             SdLogonFailedException logonFailedException = new SdLogonFailedException(msg, e);
             log.warn(msg);
@@ -454,12 +456,12 @@ public class DesigoApiClientRest implements SdClient {
     }
     void setHealthy() {
         this.isHealthy = true;
-        log.debug("Metasys is Healthy");
+        log.debug("Desigo is Healthy");
         TemporaryHealthResource.setHealthy();
     }
 
     void setUnhealthy() {
-        log.warn("Metasys is Unhealthy");
+        log.warn("Desig is Unhealthy");
         this.isHealthy = false;
         TemporaryHealthResource.setUnhealthy();
     }
