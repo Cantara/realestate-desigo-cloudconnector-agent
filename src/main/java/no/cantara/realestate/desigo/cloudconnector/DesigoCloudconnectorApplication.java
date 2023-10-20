@@ -86,15 +86,15 @@ public class DesigoCloudconnectorApplication extends AbstractStingrayApplication
         boolean doImportData = config.asBoolean("import.data");
         enableStream = config.asBoolean("sd.stream.enabled");
         enableScheduledImport = config.asBoolean("sd.scheduledImport.enabled");
-        log.info("*** Logon to SD ***");
+        log.info("Logon to Desigo BAS server");
         SdClient sdClient = createSdClient(config);
-        log.info("*** Logon to SD done ***");
+        log.info("Logon to Desigo BAS server completed.");
 
         ServiceLoader<ObservationDistributionClient> observationDistributionClients = ServiceLoader.load(ObservationDistributionClient.class);
         ObservationDistributionClient observationDistributionClient = null;
         for (ObservationDistributionClient distributionClient : observationDistributionClients) {
             if (distributionClient != null && distributionClient instanceof AzureObservationDistributionClient) {
-                log.info("Found implementation of ObservationDistributionClient on classpath: {}", distributionClient.toString());
+                log.info("Found implementation of ObservationDistributionClient on classpath: {}", distributionClient.getName());
                 observationDistributionClient = distributionClient;
             }
             get(StingrayHealthService.class).registerHealthProbe(observationDistributionClient.getName() +"-isConnected: ", observationDistributionClient::isConnectionEstablished);
