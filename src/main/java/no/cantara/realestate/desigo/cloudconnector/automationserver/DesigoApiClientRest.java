@@ -1,7 +1,9 @@
 package no.cantara.realestate.desigo.cloudconnector.automationserver;
 
 import jakarta.ws.rs.core.HttpHeaders;
+import no.cantara.config.ApplicationProperties;
 import no.cantara.realestate.desigo.cloudconnector.DesigoCloudConnectorException;
+import no.cantara.realestate.desigo.cloudconnector.DesigoCloudconnectorApplicationFactory;
 import no.cantara.realestate.desigo.cloudconnector.notifications.NotificationService;
 import no.cantara.realestate.desigo.cloudconnector.notifications.SlackNotificationService;
 import no.cantara.realestate.desigo.cloudconnector.status.TemporaryHealthResource;
@@ -47,13 +49,13 @@ public class DesigoApiClientRest implements SdClient {
     private static final String LATEST_BY_DATE = "SampleDateDescending";
     private final NotificationService notificationService;
     private UserToken userToken = null;
-    private final DesigoApiLogonService logonService;
+//    private final DesigoApiLogonService logonService;
     private long numberOfTrendSamplesReceived = 0;
     private boolean isHealthy = true;
 
     public DesigoApiClientRest(URI apiUri, NotificationService notificationService) {
         this.apiUri = apiUri;
-        logonService = null;
+//        logonService = null;
         this.notificationService = notificationService;
         /*RestClientBuilder.newBuilder()
                 .baseUri(apiUri)
@@ -62,14 +64,19 @@ public class DesigoApiClientRest implements SdClient {
          */
     }
 
+    /*
     protected DesigoApiClientRest(URI apiUri, DesigoApiLogonService logonService, NotificationService notificationService) {
         this.apiUri = apiUri;
         this.logonService = logonService;
         this.notificationService = notificationService;
     }
+    */
 
     public static void main(String[] args) throws URISyntaxException, SdLogonFailedException {
 
+        ApplicationProperties config = new DesigoCloudconnectorApplicationFactory()
+                .conventions(ApplicationProperties.builder())
+                .buildAndSetStaticSingleton();
         String trendId = getConfigValue("trend.id");
         String apiUrl = getConfigValue("sd.api.url");
         URI apiUri = new URI(apiUrl);
@@ -405,11 +412,11 @@ public class DesigoApiClientRest implements SdClient {
                     }
                 } else {
                     String requestHeaders = "";
-                    for (NameValuePair nvp : nvps) {
+                    for (NameValuePair nvp : request.getHeaders()) {
                         requestHeaders += nvp.getName() + "=" + nvp.getValue() + ", ";
                     }
                     String responseHeaders = "";
-                    for (NameValuePair nvp : nvps) {
+                    for (NameValuePair nvp : response.getHeaders()) {
                         responseHeaders += nvp.getName() + "=" + nvp.getValue() + ", ";
                     }
                     String msg = "Failed to logon to Desigo at uri: " + loginUri +
