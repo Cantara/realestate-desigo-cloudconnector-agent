@@ -420,6 +420,7 @@ public class DesigoApiClientRest implements SdClient {
                     String msg = "Failed to logon to Desigo at uri: " + loginUri +
                             ". Username: " + username +
                             ". RequestHeaders: " + requestHeaders +
+                            ". RequestMethod: " + request.getMethod() +
                             ". ResponseCode: " + httpCode +
                             ". ReasonPhrase: " + response.getReasonPhrase() +
                             ". ResponseHeaders: " + responseHeaders  +
