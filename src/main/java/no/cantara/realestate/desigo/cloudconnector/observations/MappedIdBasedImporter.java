@@ -115,6 +115,7 @@ public class MappedIdBasedImporter implements TrendLogsImporter, PresentValueImp
         }
         Instant importFromDateTime = getImportFromDateTime();
         importAfterDateTime(sensorType, importFromDateTime);
+        importAllPresentValues();
     }
 
     protected Instant getImportFromDateTime() {
