@@ -50,7 +50,7 @@ public class DesigoApiClientRest implements SdClient {
 
     private static final String LATEST_BY_DATE = "SampleDateDescending";
     private final NotificationService notificationService;
-    private UserToken userToken = null;
+    private DesigoUserToken userToken = null;
     private long numberOfTrendSamplesReceived = 0;
     private boolean isHealthy = true;
 
@@ -340,8 +340,8 @@ public class DesigoApiClientRest implements SdClient {
         return tokenNeedRefresh;
     }
 
-    public UserToken refreshToken() throws SdLogonFailedException {
-        UserToken refreshedUserToken = null;
+    public DesigoUserToken refreshToken() throws SdLogonFailedException {
+        DesigoUserToken refreshedUserToken = null;
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String refreshTokenUrl = apiUri + "refreshToken";
         HttpGet request = null;
@@ -366,7 +366,7 @@ public class DesigoApiClientRest implements SdClient {
                     if (entity != null) {
                         String body = EntityUtils.toString(entity);
                         log.trace("Received body: {}", body);
-                        userToken = RealEstateObjectMapper.getInstance().getObjectMapper().readValue(body, UserToken.class);
+                        userToken = RealEstateObjectMapper.getInstance().getObjectMapper().readValue(body, DesigoUserToken.class);
                         log.trace("Converted to userToken: {}", userToken);
                         refreshedUserToken = userToken;
                         log.debug("Logged on to Desigo. Refreshed accessToken. Expires: {}", userToken.getExpires().toString());
@@ -444,7 +444,7 @@ public class DesigoApiClientRest implements SdClient {
                     if (entity != null) {
                         String body = EntityUtils.toString(entity);
                         log.trace("Received body: {}", body);
-                        userToken = RealEstateObjectMapper.getInstance().getObjectMapper().readValue(body, UserToken.class);
+                        userToken = RealEstateObjectMapper.getInstance().getObjectMapper().readValue(body, DesigoUserToken.class);
                         log.trace("Converted to userToken: {}", userToken);
                         setHealthy();
                         notificationService.clearService(DESIGO_API);
