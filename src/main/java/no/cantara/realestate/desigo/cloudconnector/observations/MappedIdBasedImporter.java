@@ -4,10 +4,7 @@ import no.cantara.config.ApplicationProperties;
 import no.cantara.realestate.desigo.cloudconnector.DesigoCloudConnectorException;
 import no.cantara.realestate.desigo.cloudconnector.DesigoCloudconnectorApplicationFactory;
 import no.cantara.realestate.desigo.cloudconnector.StatusType;
-import no.cantara.realestate.desigo.cloudconnector.automationserver.DesigoApiClientRest;
-import no.cantara.realestate.desigo.cloudconnector.automationserver.MetasysTrendSample;
-import no.cantara.realestate.desigo.cloudconnector.automationserver.SdClient;
-import no.cantara.realestate.desigo.cloudconnector.automationserver.SdLogonFailedException;
+import no.cantara.realestate.desigo.cloudconnector.automationserver.*;
 import no.cantara.realestate.desigo.cloudconnector.distribution.*;
 import no.cantara.realestate.desigo.cloudconnector.notifications.NotificationService;
 import no.cantara.realestate.desigo.cloudconnector.notifications.SlackNotificationService;
@@ -16,6 +13,7 @@ import no.cantara.realestate.desigo.cloudconnector.sensors.SensorType;
 import no.cantara.realestate.desigo.cloudconnector.status.TemporaryHealthResource;
 import no.cantara.realestate.distribution.ObservationDistributionClient;
 import no.cantara.realestate.mappingtable.MappedSensorId;
+import no.cantara.realestate.mappingtable.desigo.DesigoSensorId;
 import no.cantara.realestate.mappingtable.metasys.MetasysSensorId;
 import no.cantara.realestate.mappingtable.repository.MappedIdQuery;
 import no.cantara.realestate.mappingtable.repository.MappedIdRepository;
@@ -32,7 +30,7 @@ import java.util.*;
 import static no.cantara.realestate.desigo.cloudconnector.status.TemporaryHealthResource.lastImportedObservationTypes;
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class MappedIdBasedImporter implements TrendLogsImporter {
+public class MappedIdBasedImporter implements TrendLogsImporter, PresentValueImporter {
     private static final Logger log = getLogger(MappedIdBasedImporter.class);
     public static final int FIRST_IMPORT_LATEST_SECONDS = 60 * 60 * 24;
 
@@ -158,7 +156,7 @@ public class MappedIdBasedImporter implements TrendLogsImporter {
 
                             successfulImport++;
                             for (MetasysTrendSample trendSample : trendSamples) {
-                                ObservationMessage observationMessage = new MetasysObservationMessage(trendSample, mappedSensorId);
+                                ObservationMessage observationMessage = new DesigoObservationMessage(trendSample, mappedSensorId);
                                 distributionClient.publish(observationMessage);
                             }
                             metricsClient.populate(trendSamples, mappedSensorId);
@@ -184,6 +182,56 @@ public class MappedIdBasedImporter implements TrendLogsImporter {
             } else {
                 log.warn("SensorId is not a MetasysSensorId. Skipping import of sensorId: {}", mappedSensorId.getSensorId());
                 continue;
+            }
+        }
+        log.trace("Tried to import {}. Successful {}. Failed {}", importableTrendIds.size(), successfulImport, failedImport);
+    }
+    @Override
+    public void importAllPresentValues() {
+        int successfulImport = 0;
+        int failedImport = 0;
+        for (MappedSensorId mappedSensorId : importableTrendIds) {
+
+            if (mappedSensorId.getSensorId() != null && mappedSensorId.getSensorId() instanceof DesigoSensorId) {
+
+                DesigoSensorId sensorId = (DesigoSensorId) mappedSensorId.getSensorId();
+                String objectId = sensorId.getDesigoId();
+                String propertyId = sensorId.getDesigoPropertyId();
+                if (objectId == null || propertyId == null) {
+                    log.warn("objectId or propertyId is null for sensorId: {}", sensorId);
+                } else {
+                    String objectOrPropertyId = objectId + "." + propertyId;
+                    log.trace("Try import of ObjectOrPropertyId: {} ", objectOrPropertyId);
+                    try {
+                        DesigoPresentValue presentValue = basClient.findPresentValue(sensorId);
+                        if (presentValue != null) {
+                            log.trace("Found {} sample for objectOrPropertyId: {}",presentValue, objectOrPropertyId);
+                                lastSuccessfulImportAt.put(objectId, Instant.now());
+                            successfulImport++;
+                                ObservationMessage observationMessage = new DesigoObservationMessage(presentValue, mappedSensorId);
+                                distributionClient.publish(observationMessage);
+                            metricsClient.populate(presentValue, mappedSensorId);
+                            reportSuccessfulImport(objectOrPropertyId);
+                        } else {
+                            log.trace("Missing PresentValue for objectOrPropertyId: {}", objectOrPropertyId);
+                        }
+                    } catch (URISyntaxException e) {
+                        DesigoCloudConnectorException se = new DesigoCloudConnectorException("Import of objectOrPropertyId: {} is not possible now. Reason: {}", e, StatusType.RETRY_NOT_POSSIBLE);
+                        log.warn("Import of objectOrPropertyId: {} is not possible now. URI to SD server is misconfigured. Reason: {} ", objectOrPropertyId, e.getMessage());
+                        throw se;
+                    } catch (SdLogonFailedException e) {
+                        DesigoCloudConnectorException se = new DesigoCloudConnectorException("Failed to logon to SD server.", e, StatusType.RETRY_NOT_POSSIBLE);
+                        log.warn("Import of objectOrPropertyId: {} is not possible now. Reason: {} ", objectOrPropertyId, e.getMessage());
+                        throw se;
+                    } catch (Exception e) {
+                        DesigoCloudConnectorException se = new DesigoCloudConnectorException("Failed to import objectOrPropertyId " + objectOrPropertyId, e, StatusType.RETRY_MAY_FIX_ISSUE);
+                        log.trace("Failed to import objectOrPropertyId {} for MappedSensorId: {}. Reason: {}", objectOrPropertyId, mappedSensorId, se.getMessage());
+                        log.trace("cause:", e);
+                        failedImport++;
+                    }
+                }
+            } else {
+                log.warn("SensorId is not a DesigoSensorId. Skipping import of sensorId: {}", mappedSensorId.getSensorId());
             }
         }
         log.trace("Tried to import {}. Successful {}. Failed {}", importableTrendIds.size(), successfulImport, failedImport);

@@ -1,5 +1,6 @@
 package no.cantara.realestate.desigo.cloudconnector.observations;
 
+import no.cantara.realestate.desigo.cloudconnector.automationserver.DesigoPresentValue;
 import no.cantara.realestate.desigo.cloudconnector.automationserver.MetasysTrendSample;
 import no.cantara.realestate.desigo.cloudconnector.sensors.MeasurementUnit;
 import no.cantara.realestate.desigo.cloudconnector.sensors.SensorType;
@@ -13,24 +14,35 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.Objects;
 
-public class MetasysObservationMessage extends ObservationMessage {
+public class DesigoObservationMessage extends ObservationMessage {
 
     private final MetasysTrendSample trendSample;
+
+    private final DesigoPresentValue presentValue;
     private final MappedSensorId mappedSensorId;
 
     private final ObservedValueNumber observedValue;
 
-    public MetasysObservationMessage(MetasysTrendSample trendSample, MappedSensorId mappedSensorId) {
+    public DesigoObservationMessage(MetasysTrendSample trendSample, MappedSensorId mappedSensorId) {
         this.trendSample = trendSample;
         this.mappedSensorId = mappedSensorId;
         observedValue = null;
+        presentValue = null;
         buildObservation();
     }
 
-    public MetasysObservationMessage(ObservedValueNumber observedValue, MappedSensorId mappedSensorId) {
+    public DesigoObservationMessage(ObservedValueNumber observedValue, MappedSensorId mappedSensorId) {
         this.observedValue = observedValue;
         this.mappedSensorId = mappedSensorId;
         trendSample = null;
+        presentValue = null;
+        buildObservation();
+    }
+    public DesigoObservationMessage(DesigoPresentValue presentValue, MappedSensorId mappedSensorId) {
+        this.observedValue = null;
+        this.mappedSensorId = mappedSensorId;
+        trendSample = null;
+        this.presentValue = presentValue;
         buildObservation();
     }
 
@@ -74,6 +86,13 @@ public class MetasysObservationMessage extends ObservationMessage {
                 value = ((BigDecimal) value).setScale(2, RoundingMode.CEILING);
             }
             observedAt = observedValue.getObservedAt();
+        } else if (presentValue != null) {
+
+            value = presentValue.getValue();
+            if (value instanceof BigDecimal) {
+                value = ((BigDecimal) value).setScale(2, RoundingMode.CEILING);
+            }
+            observedAt = presentValue.getSampleDate();
         }
         setObservationTime(observedAt);
         Instant receivedAt = Instant.now();
@@ -85,7 +104,7 @@ public class MetasysObservationMessage extends ObservationMessage {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MetasysObservationMessage that = (MetasysObservationMessage) o;
+        DesigoObservationMessage that = (DesigoObservationMessage) o;
         return Objects.equals(trendSample, that.trendSample) && Objects.equals(mappedSensorId, that.mappedSensorId) && Objects.equals(observedValue, that.observedValue);
     }
 
@@ -96,7 +115,7 @@ public class MetasysObservationMessage extends ObservationMessage {
 
     @Override
     public String toString() {
-        return "MetasysObservationMessage{" +
+        return "DesigoObservationMessage{" +
                 "trendSample=" + trendSample +
                 ", mappedSensorId=" + mappedSensorId +
                 ", observedValue=" + observedValue +

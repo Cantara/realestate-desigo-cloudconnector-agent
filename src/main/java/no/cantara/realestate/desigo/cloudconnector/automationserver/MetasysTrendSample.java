@@ -1,6 +1,7 @@
 package no.cantara.realestate.desigo.cloudconnector.automationserver;
 
-import javax.json.bind.annotation.JsonbProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.Instant;
 import java.util.Objects;
 
@@ -18,7 +19,7 @@ public class MetasysTrendSample {
     private String trendId = null;
 
     private Boolean isReliable;
-    @JsonbProperty("timestamp")
+    @JsonProperty("timestamp")
     private Instant sampleDate;
     private Value value;
     private String objectId;

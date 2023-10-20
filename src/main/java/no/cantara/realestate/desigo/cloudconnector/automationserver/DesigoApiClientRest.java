@@ -8,6 +8,8 @@ import no.cantara.realestate.desigo.cloudconnector.notifications.NotificationSer
 import no.cantara.realestate.desigo.cloudconnector.notifications.SlackNotificationService;
 import no.cantara.realestate.desigo.cloudconnector.status.TemporaryHealthResource;
 import no.cantara.realestate.json.RealEstateObjectMapper;
+import no.cantara.realestate.mappingtable.SensorId;
+import no.cantara.realestate.mappingtable.desigo.DesigoSensorId;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
@@ -203,6 +205,53 @@ public class DesigoApiClientRest implements SdClient {
          */
         isHealthy = true;
         return new HashSet<>(trendSamples);
+    }
+
+    @Override
+    public DesigoPresentValue findPresentValue(SensorId sensorId) throws URISyntaxException, SdLogonFailedException {
+        DesigoPresentValue presentValue = null;
+        String apiUrl = getConfigValue("sd.api.url");
+        DesigoSensorId desigoSensorId = (DesigoSensorId) sensorId;
+        String objectOrPropertyId = desigoSensorId.getDesigoId() + "." + desigoSensorId.getDesigoPropertyId();
+        String bearerToken = findAccessToken();
+        URI presentValueUri = new URI(apiUrl + "values/" + objectOrPropertyId);
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpGet request = null;
+        List<MetasysTrendSample> trendSamples = new ArrayList<>();
+        try {
+            log.trace("findPresentValue. objectOrPropertyId: {}.",objectOrPropertyId);
+            request = new HttpGet(presentValueUri);
+            request.addHeader(HttpHeaders.ACCEPT, "application/json");
+            request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + bearerToken);
+            CloseableHttpResponse response = httpClient.execute(request);
+            try {
+                int httpCode = response.getCode();
+                if (httpCode == 200) {
+                    HttpEntity entity = response.getEntity();
+                    if (entity != null) {
+                        String body = EntityUtils.toString(entity);
+                        log.trace("Received body: {}", body);
+                        if (body != null && body.startsWith("[")) {
+
+                        DesigoPresentValue[] presentValues = PresentValueMapper.mapFromJsonArray(body);
+                        if (presentValues != null) {
+                            log.trace("Found: {} presentValues from objectOrPropertyId: {}", presentValues.length, objectOrPropertyId);
+                            presentValue = presentValues[0];
+                        }
+                        } else {
+                            presentValue = PresentValueMapper.mapFromJson(body);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                setUnhealthy();
+                throw new DesigoCloudConnectorException("Failed to fetch presentValue for sensorId " + desigoSensorId + ". Reason: " + e.getMessage(), e);
+            }
+        } catch (Exception e) {
+            setUnhealthy();
+            throw new DesigoCloudConnectorException("Failed to fetch presentValue for sensorId " + desigoSensorId + ". Reason: " + e.getMessage(), e);
+        }
+        return presentValue;
     }
 
     @Override

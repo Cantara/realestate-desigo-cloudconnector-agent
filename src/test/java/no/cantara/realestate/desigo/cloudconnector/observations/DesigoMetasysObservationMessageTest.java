@@ -34,7 +34,7 @@ class DesigoMetasysObservationMessageTest {
 
         when(sensorId.getId()).thenReturn(null);
         when(rec.getRecId()).thenReturn("rec1");
-        MetasysObservationMessage message = new MetasysObservationMessage(trendSample, mappedSensorId);
+        DesigoObservationMessage message = new DesigoObservationMessage(trendSample, mappedSensorId);
         assertEquals("rec1", message.getSensorId());
     }
 
@@ -42,7 +42,7 @@ class DesigoMetasysObservationMessageTest {
     void verifyTfmIsSet() {
         Tfm tfm = new Tfm("testTfm");
         when(rec.getTfm()).thenReturn(tfm);
-        MetasysObservationMessage message = new MetasysObservationMessage(trendSample, mappedSensorId);
+        DesigoObservationMessage message = new DesigoObservationMessage(trendSample, mappedSensorId);
         assertEquals("testTfm", message.getTfm());
 
     }

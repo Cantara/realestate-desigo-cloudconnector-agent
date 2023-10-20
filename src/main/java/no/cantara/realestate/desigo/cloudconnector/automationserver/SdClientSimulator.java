@@ -1,5 +1,7 @@
 package no.cantara.realestate.desigo.cloudconnector.automationserver;
 
+import no.cantara.realestate.mappingtable.SensorId;
+import no.cantara.realestate.mappingtable.desigo.DesigoSensorId;
 import org.slf4j.Logger;
 
 import java.net.URISyntaxException;
@@ -28,6 +30,19 @@ public class SdClientSimulator implements SdClient {
         log.info("SD Rest API Simulator started");
         scheduled_simulator_started = false;
         initializeMapAndStartSimulation();
+    }
+
+    @Override
+    public DesigoPresentValue findPresentValue(SensorId sensorId) throws URISyntaxException, SdLogonFailedException {
+        DesigoSensorId desigoSensorId = (DesigoSensorId) sensorId;
+        DesigoPresentValue presentValue =  new DesigoPresentValue();
+        Value value = new Value();
+        value.setValue(521);
+        value.setSampleDate(Instant.now());
+        presentValue.setValue(value);
+        presentValue.setObjectId(desigoSensorId.getDesigoId());
+        presentValue.setPropertyId(desigoSensorId.getDesigoPropertyId());
+        return presentValue;
     }
 
     @Override

@@ -1,5 +1,7 @@
 package no.cantara.realestate.desigo.cloudconnector.automationserver;
 
+import no.cantara.realestate.mappingtable.SensorId;
+
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Set;
@@ -26,4 +28,6 @@ public interface SdClient {
     UserToken getUserToken();
 
     UserToken refreshToken() throws SdLogonFailedException;
+
+    DesigoPresentValue findPresentValue(SensorId sensorId) throws URISyntaxException, SdLogonFailedException;
 }

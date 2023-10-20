@@ -1,5 +1,6 @@
 package no.cantara.realestate.desigo.cloudconnector.distribution;
 
+import no.cantara.realestate.desigo.cloudconnector.automationserver.DesigoPresentValue;
 import no.cantara.realestate.desigo.cloudconnector.automationserver.MetasysTrendSample;
 import no.cantara.realestate.mappingtable.MappedSensorId;
 
@@ -31,6 +32,11 @@ public class MetricsDistributionServiceStub implements MetricsDistributionClient
 
     @Override
     public void populate(Set<MetasysTrendSample> trendSamples, MappedSensorId mappedSensorId) {
+
+    }
+
+    @Override
+    public void populate(DesigoPresentValue desigoPresentValue, MappedSensorId mappedSensorId) {
 
     }
 }
