@@ -9,7 +9,6 @@ import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.MediaType;
 
 import java.net.URI;
-import java.time.Instant;
 
 import static no.cantara.realestate.desigo.cloudconnector.automationserver.DesigoApiClientRest.*;
 import static no.cantara.realestate.mappingtable.Main.getConfigValue;
@@ -94,7 +93,7 @@ public class DesigoApiVerifyNotificationsTest {
                                         "  \"user_profile\": \"DEFAULT.ldl\",\n" +
                                         "  \"flex_user_profile\": \"DEFAULT\",\n" +
                                         "  \"user_inactivity_timeout\": \"0\",\n" +
-                                        "  \"expires_in\": \"" + Instant.now().plusSeconds(60 * 15).toString() + "\"\n" +
+                                        "  \"expires_in\": \"2591999\n" +
                                         "}\n")
                                 .withHeader(
                                         "Content-Type", "application/json"
@@ -110,6 +109,8 @@ public class DesigoApiVerifyNotificationsTest {
             fail("No exception expected");
         }
         assertTrue(metasysApiClient.isHealthy());
+//        UserToken userToken = metasysApiClient.getUserToken();
+//        assertNotNull(userToken);
     }
     @Test
     void verifyMetasysLoginFailed() {

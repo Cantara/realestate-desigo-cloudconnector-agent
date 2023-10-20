@@ -1,18 +1,22 @@
 package no.cantara.realestate.desigo.cloudconnector.automationserver;
 
-import javax.json.bind.annotation.JsonbProperty;
 import java.time.Instant;
 
 public class UserToken {
-    @JsonbProperty("accessToken")
     private String accessToken;
-    @JsonbProperty("expires")
+
     private Instant expires;
-    private int validSeconds = -1;
     private Instant createdAt;
+    private String refreshToken;
 
     public UserToken() {
         createdAt = Instant.now();
+    }
+    public UserToken(String accessToken, Instant expires, String refreshToken) {
+        this.accessToken = accessToken;
+        this.expires = expires;
+        this.createdAt = Instant.now();
+        this.refreshToken = refreshToken;
     }
 
     public String getAccessToken() {
@@ -24,9 +28,6 @@ public class UserToken {
     }
 
     public Instant getExpires() {
-        if (validSeconds > 0) {
-            return createdAt.plusSeconds(validSeconds);
-        }
         return expires;
     }
 
@@ -35,12 +36,9 @@ public class UserToken {
     }
 
     public int getValidSeconds() {
-        return validSeconds;
+        return expires.compareTo(Instant.now()) ;
     }
 
-    public void setValidSeconds(int validSeconds) {
-        this.validSeconds = validSeconds;
-    }
 
     public Instant getCreatedAt() {
         return createdAt;
@@ -50,12 +48,23 @@ public class UserToken {
         this.createdAt = createdAt;
     }
 
+    public boolean tokenNeedRefresh() {
+        long validSeconds = getValidSeconds();
+        if (validSeconds < 30) {
+            return true;
+        }
+        if (accessToken == null || accessToken.isEmpty()) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public String toString() {
         return "UserToken{" +
                 "accessToken='" + accessToken + '\'' +
                 ", expires=" + expires +
-                ", validSeconds=" + validSeconds +
+                ", validSeconds=" + getValidSeconds() +
                 ", createdAt=" + createdAt +
                 '}';
     }
