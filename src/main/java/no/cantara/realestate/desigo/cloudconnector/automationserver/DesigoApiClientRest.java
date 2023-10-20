@@ -404,10 +404,20 @@ public class DesigoApiClientRest implements SdClient {
                         notificationService.clearService(DESIGO_API);
                     }
                 } else {
-                    String msg = "Failed to logon to Desigo at uri: " + request.getRequestUri() +
+                    String requestHeaders = "";
+                    for (NameValuePair nvp : nvps) {
+                        requestHeaders += nvp.getName() + "=" + nvp.getValue() + ", ";
+                    }
+                    String responseHeaders = "";
+                    for (NameValuePair nvp : nvps) {
+                        responseHeaders += nvp.getName() + "=" + nvp.getValue() + ", ";
+                    }
+                    String msg = "Failed to logon to Desigo at uri: " + loginUri +
                             ". Username: " + username +
+                            ". RequestHeaders: " + requestHeaders +
                             ". ResponseCode: " + httpCode +
-                            ". ReasonPhrase: " + response.getReasonPhrase();
+                            ". ReasonPhrase: " + response.getReasonPhrase() +
+                            ". ResponseHeaders: " + responseHeaders ;
                     SdLogonFailedException logonFailedException = new SdLogonFailedException(msg);
                     log.warn("Failed to logon to Desigo. Reason {}", logonFailedException.getMessage());
                     setUnhealthy();
