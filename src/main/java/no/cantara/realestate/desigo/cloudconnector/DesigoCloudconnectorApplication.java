@@ -86,7 +86,9 @@ public class DesigoCloudconnectorApplication extends AbstractStingrayApplication
         boolean doImportData = config.asBoolean("import.data");
         enableStream = config.asBoolean("sd.stream.enabled");
         enableScheduledImport = config.asBoolean("sd.scheduledImport.enabled");
+        log.info("*** Logon to SD ***");
         SdClient sdClient = createSdClient(config);
+        log.info("*** Logon to SD done ***");
 
         ServiceLoader<ObservationDistributionClient> observationDistributionClients = ServiceLoader.load(ObservationDistributionClient.class);
         ObservationDistributionClient observationDistributionClient = null;

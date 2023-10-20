@@ -8,6 +8,7 @@ import no.cantara.realestate.desigo.cloudconnector.status.TemporaryHealthResourc
 import no.cantara.realestate.json.RealEstateObjectMapper;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -15,7 +16,6 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.net.URIBuilder;
 import org.slf4j.Logger;
@@ -374,14 +374,19 @@ public class DesigoApiClientRest implements SdClient {
     }
     protected void logon(String username, String password) throws SdLogonFailedException {
         log.trace("Logon: {}", username);
-        String jsonBody = "{ \"username\": \"" + username + "\",\"password\": \"" + password + "\"}";
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String loginUri = apiUri + "login";
         HttpPost request = null;
         try {
             request = new HttpPost(loginUri);
-            request.addHeader(HttpHeaders.CONTENT_TYPE, "application/json");
-            request.setEntity(new StringEntity(jsonBody));
+            request.addHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
+            request.addHeader(HttpHeaders.ACCEPT, "application/json");
+            List<NameValuePair> nvps = new ArrayList<>();
+            nvps.add(new BasicNameValuePair("username", username));
+            nvps.add(new BasicNameValuePair("password", password));
+            nvps.add(new BasicNameValuePair("grant_type", "password"));
+            HttpEntity bodyEntity = new UrlEncodedFormEntity(nvps);
+            request.setEntity(bodyEntity);
 
             CloseableHttpResponse response = httpClient.execute(request);
             try {
