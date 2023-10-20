@@ -1,8 +1,13 @@
 package no.cantara.realestate.desigo.cloudconnector.automationserver;
 
+import org.slf4j.Logger;
+
 import java.time.Instant;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 public class UserToken {
+    private static final Logger log = getLogger(UserToken.class);
     private String accessToken;
 
     private Instant expires;
@@ -32,11 +37,12 @@ public class UserToken {
     }
 
     public void setExpires(Instant expires) {
+        log.trace("***Setting expires to {}", expires);
         this.expires = expires;
     }
 
     public int getValidSeconds() {
-        return expires.compareTo(Instant.now()) ;
+        return getExpires().compareTo(Instant.now()) ;
     }
 
 
@@ -49,11 +55,17 @@ public class UserToken {
     }
 
     public boolean tokenNeedRefresh() {
-        long validSeconds = getValidSeconds();
-        if (validSeconds < 30) {
-            return true;
-        }
-        if (accessToken == null || accessToken.isEmpty()) {
+        try {
+            long validSeconds = getValidSeconds();
+            if (validSeconds < 30) {
+                return true;
+            }
+            if (accessToken == null || accessToken.isEmpty()) {
+                return true;
+            }
+        } catch (Exception e) {
+            //#11 FIXME NPE for expires
+            log.warn("Unable to check if token need refresh. This will cause login-attempt on every request to the Desigo Server", e);
             return true;
         }
         return false;

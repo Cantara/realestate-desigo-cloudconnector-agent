@@ -35,12 +35,6 @@ public class DesigoUserToken extends UserToken {
         setExpires(Instant.now().plusSeconds(validSeconds));
     }
 
-    public Instant getExpires() {
-            return getCreatedAt().plusSeconds(validSeconds);
-    }
-
-
-
     public int getValidSeconds() {
         return Long.valueOf(validSeconds).intValue();
     }
