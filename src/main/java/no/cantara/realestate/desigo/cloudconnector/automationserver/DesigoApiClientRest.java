@@ -375,7 +375,7 @@ public class DesigoApiClientRest implements SdClient {
     protected void logon(String username, String password) throws SdLogonFailedException {
         log.trace("Logon: {}", username);
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        String loginUri = apiUri + "login";
+        String loginUri = apiUri + "token";
         HttpPost request = null;
         try {
             request = new HttpPost(loginUri);

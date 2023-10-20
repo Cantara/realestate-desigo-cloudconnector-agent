@@ -7,7 +7,8 @@ import java.time.Instant;
 
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
-import static org.mockserver.model.JsonBody.json;
+import static org.mockserver.model.Parameter.param;
+import static org.mockserver.model.ParameterBody.params;
 
 public class MockServerSetup {
 
@@ -17,24 +18,34 @@ public class MockServerSetup {
 
     public static void clearAndSetLoginMock() {
         new MockServerClient("localhost", 1080)
-                .clear(request().withPath("/api/v4/login"));
+                .clear(request().withPath("/testcontext/api/token"));
         new MockServerClient("localhost", 1080)
                 .when(
                         request()
                                 .withMethod("POST")
-                                .withPath("/api/v4/login")
-                                .withContentType(MediaType.APPLICATION_JSON)
-                                .withBody(json("{\"username\": \"jane-doe\", \"password\": \"strongPassword\"}"))
+                                .withPath("/testcontext/api/token")
+                                .withContentType(MediaType.APPLICATION_FORM_URLENCODED)
+                                .withBody(params(
+                                        param("username", "user"),
+                                        param("password", "password"),
+                                        param("grant_type", "password")
+                                ))
                 )
                 .respond(
                         response()
                                 .withStatusCode(200)
                                 .withBody("{\n" +
-                                        "  \"accessToken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1...\",\n" +
-                                        "  \"expires\": \"" + Instant.now().plusSeconds(60 * 60).toString() + "\"\n" +
+                                        "  \"access_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1...\",\n" +
+                                        "  \"token_type\": \"bearer\",\n" +
+                                        "  \"user_name\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1...\",\n" +
+                                        "  \"user_descriptor\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1...\",\n" +
+                                        "  \"user_profile\": \"DEFAULT.ldl\",\n" +
+                                        "  \"flex_user_profile\": \"DEFAULT\",\n" +
+                                        "  \"user_inactivity_timeout\": \"0\",\n" +
+                                        "  \"expires_in\": \"" + Instant.now().plusSeconds(60 * 15).toString() + "\"\n" +
                                         "}\n")
                                 .withHeader(
-                                        "Content-Type", "application/vnd.metasysapi.v4+json"
+                                        "Content-Type", "application/json"
                                 )
                 );
     }
