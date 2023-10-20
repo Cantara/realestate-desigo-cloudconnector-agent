@@ -67,7 +67,7 @@ public class DesigoApiVerifyNotificationsTest {
     }
 
     @Test
-    void verifyMetasysLoginOk() {
+    void verifyDesigoLoginOk() {
         String userName = getConfigValue("sd.api.username");
         String password = getConfigValue("sd.api.password");
         mockServer
@@ -93,7 +93,7 @@ public class DesigoApiVerifyNotificationsTest {
                                         "  \"user_profile\": \"DEFAULT.ldl\",\n" +
                                         "  \"flex_user_profile\": \"DEFAULT\",\n" +
                                         "  \"user_inactivity_timeout\": \"0\",\n" +
-                                        "  \"expires_in\": \"2591999\n" +
+                                        "  \"expires_in\": 2591999 \n" +
                                         "}\n")
                                 .withHeader(
                                         "Content-Type", "application/json"

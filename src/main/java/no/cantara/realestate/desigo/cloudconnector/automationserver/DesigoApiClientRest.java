@@ -336,12 +336,8 @@ public class DesigoApiClientRest implements SdClient {
         if (userToken == null) {
             return true;
         }
-        Instant now = Instant.now();
-        boolean willSoonExpire = userToken.getExpires().isBefore(now.plusSeconds(30));
-        if (willSoonExpire) {
-            log.debug("AccessToken will soon expire. Need refreshing. Expires: {}", userToken.getExpires().toString());
-        }
-        return willSoonExpire;
+        boolean tokenNeedRefresh = userToken.tokenNeedRefresh();
+        return tokenNeedRefresh;
     }
 
     public UserToken refreshToken() throws SdLogonFailedException {
@@ -527,7 +523,7 @@ public class DesigoApiClientRest implements SdClient {
     }
 
     void setUnhealthy() {
-        log.warn("Desig is Unhealthy");
+        log.warn("Desigo is Unhealthy");
         this.isHealthy = false;
         TemporaryHealthResource.setUnhealthy();
     }
