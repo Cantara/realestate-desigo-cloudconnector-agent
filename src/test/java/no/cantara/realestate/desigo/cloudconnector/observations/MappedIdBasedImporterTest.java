@@ -7,7 +7,7 @@ import no.cantara.realestate.desigo.cloudconnector.automationserver.SdLogonFaile
 import no.cantara.realestate.desigo.cloudconnector.distribution.MetricsDistributionClient;
 import no.cantara.realestate.distribution.ObservationDistributionClient;
 import no.cantara.realestate.mappingtable.MappedSensorId;
-import no.cantara.realestate.mappingtable.metasys.MetasysSensorId;
+import no.cantara.realestate.mappingtable.desigo.DesigoSensorId;
 import no.cantara.realestate.mappingtable.rec.SensorRecObject;
 import no.cantara.realestate.mappingtable.repository.MappedIdQuery;
 import no.cantara.realestate.mappingtable.repository.MappedIdRepository;
@@ -50,15 +50,16 @@ class MappedIdBasedImporterTest {
 
     @Test
     void trendSamplesIsNull() throws SdLogonFailedException, URISyntaxException {
-        MappedSensorId mappedSensorStub = buildMetasysMappedId("moId", "moR","recId1", "tfm2");
+        MappedSensorId mappedSensorStub = buildDesigoMappedId("doId", "doP", "dot1","recId1", "tfm2");
         importer.addImportableTrendId(mappedSensorStub);
         when(mockBasClient.findTrendSamplesByDate(anyString(),anyInt(),anyInt(),any(Instant.class))).thenReturn(null);
         importer.importAllAfterDateTime(Instant.now());
         verify(mockBasClient, times(1)).findTrendSamplesByDate(anyString(),anyInt(),anyInt(),any());
     }
 
-    MappedSensorId buildMetasysMappedId(String metasysObjectId, String metasysObjectReference, String recId, String tfm) {
-        MetasysSensorId sensorId = new MetasysSensorId(metasysObjectId, metasysObjectReference);
+    MappedSensorId buildDesigoMappedId(String desigoObjectId, String desigoPropertyId, String desigoTrendId, String recId, String tfm) {
+        DesigoSensorId sensorId = new DesigoSensorId(desigoObjectId, desigoPropertyId);
+        sensorId.setTrendId(desigoTrendId);
         SensorRecObject recObject = new SensorRecObject(recId);
         recObject.setTfm(new Tfm(tfm));
         return new MappedSensorId(sensorId, recObject);
