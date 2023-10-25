@@ -105,16 +105,27 @@ public class MappedIdBasedImporter implements TrendLogsImporter, PresentValueImp
 
     @Override
     public void importAll() {
-        Map<String, Instant> lastImportedAtList = lastImportedObservationTypes.getLastImportedObservationTypes();
-        String sensorType = mappedIdQuery.getSensorType();
-        Instant lastImportedAt = lastImportedAtList.get(sensorType);
-        if (lastImportedAt == null) {
-            lastImportedAt = Instant.now();
-            lastImportedObservationTypes.updateLastImported(sensorType, lastImportedAt);
+        ApplicationProperties config = ApplicationProperties.getInstance();
+        boolean importTrends = config.asBoolean("import.trends", false);
+        if (importTrends) {
+            Map<String, Instant> lastImportedAtList = lastImportedObservationTypes.getLastImportedObservationTypes();
+            String sensorType = mappedIdQuery.getSensorType();
+            Instant lastImportedAt = lastImportedAtList.get(sensorType);
+            if (lastImportedAt == null) {
+                lastImportedAt = Instant.now();
+                lastImportedObservationTypes.updateLastImported(sensorType, lastImportedAt);
+            }
+            Instant importFromDateTime = getImportFromDateTime();
+            importAfterDateTime(sensorType, importFromDateTime);
+        } else {
+            log.info("Import of trends is disabled. Skipping import of trends.");
         }
-        Instant importFromDateTime = getImportFromDateTime();
-        importAfterDateTime(sensorType, importFromDateTime);
-        importAllPresentValues();
+        boolean importPresentValues = config.asBoolean("import.presentvalues", false);
+        if (importPresentValues) {
+            importAllPresentValues();
+        } else {
+            log.info("Import of present values is disabled. Skipping import of present values.");
+        }
     }
 
     protected Instant getImportFromDateTime() {
