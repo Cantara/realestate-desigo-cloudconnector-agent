@@ -113,12 +113,12 @@ public class DesigoApiClientRest implements SdClient {
     }
 
     @Override
-    public Set<DesigoTrendSample> findTrendSamplesByDate(String objectId, int take, int skip, Instant onAndAfterDateTime) throws URISyntaxException, SdLogonFailedException {
+    public Set<DesigoTrendSample> findTrendSamplesByDate(String trendId, int take, int skip, Instant onAndAfterDateTime) throws URISyntaxException, SdLogonFailedException {
 
         String apiUrl = getConfigValue("sd.api.url");
-        String prefixedUrlEncodedTrendId = encodeAndPrefix(objectId);
+        String prefixedUrlEncodedTrendId = encodeAndPrefix(trendId);
         String bearerToken = findAccessToken();
-        URI samplesUri = new URI(apiUrl + "objects/" + objectId+"/trendedAttributes/presentValue/samples");
+        URI samplesUri = new URI(apiUrl + "trendseries/" + trendId);
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpGet request = null;
         List<DesigoTrendSample> trendSamples = new ArrayList<>();
@@ -131,14 +131,14 @@ public class DesigoApiClientRest implements SdClient {
 
 //        DesigoTrendSampleResult trendSampleResult = trendSampleService.findTrendSamplesByDate("Bearer " + bearerToken, prefixedUrlEncodedTrendId, pageSize, page, startTime, endTime);
             log.trace("findTrendSamplesByDate. trendId: {}. From date: {}. To date: {}. Page: {}. PageSize: {}. Take: {}. Skip: {}",
-                    objectId, onAndAfterDateTime, endTime, page, pageSize, take, skip);
+                    trendId, onAndAfterDateTime, endTime, page, pageSize, take, skip);
             List<NameValuePair> nvps = new ArrayList<>();
             // GET Query Parameters
-            nvps.add(new BasicNameValuePair("startTime", startTime));
-            nvps.add(new BasicNameValuePair("endTime", endTime));
-            nvps.add(new BasicNameValuePair("page", "1"));
-            nvps.add(new BasicNameValuePair("pageSize", "1000"));
-            nvps.add(new BasicNameValuePair("skip", "0"));
+            nvps.add(new BasicNameValuePair("from", startTime));
+            nvps.add(new BasicNameValuePair("to", endTime));
+//            nvps.add(new BasicNameValuePair("page", "1"));
+//            nvps.add(new BasicNameValuePair("pageSize", "1000"));
+//            nvps.add(new BasicNameValuePair("skip", "0"));
 
             URI uri = new URIBuilder(samplesUri)
                     .addParameters(nvps)
@@ -155,11 +155,11 @@ public class DesigoApiClientRest implements SdClient {
                         String body = EntityUtils.toString(entity);
                         log.trace("Received body: {}", body);
                         DesigoTrendSampleResult trendSampleResult = TrendSamplesMapper.mapFromJson(body);
-                        log.trace("Found: {} trends from trendId: {}", trendSampleResult.getTotal(), objectId);
+                        log.trace("Found: {} trends from trendId: {}", trendSampleResult.getTotal(), trendId);
                          trendSamples = trendSampleResult.getSeriesWithObjectAndPropertyId();
                         if (trendSamples != null) {
                             for (DesigoTrendSample trendSample : trendSamples) {
-                                trendSample.setTrendId(objectId);
+                                trendSample.setTrendId(trendId);
                                 log.trace("imported trendSample: {}", trendSample);
                             }
                         }
@@ -168,12 +168,12 @@ public class DesigoApiClientRest implements SdClient {
                 }
             } catch (Exception e) {
                 setUnhealthy();
-                throw new DesigoCloudConnectorException("Failed to fetch trendsamples for objectId " + objectId
+                throw new DesigoCloudConnectorException("Failed to fetch trendsamples for objectId " + trendId
                         + ", after date "+ onAndAfterDateTime + ". Reason: " + e.getMessage(), e);
             }
         } catch (Exception e) {
             setUnhealthy();
-            throw new DesigoCloudConnectorException("Failed to fetch trendsamples for objectId " + objectId
+            throw new DesigoCloudConnectorException("Failed to fetch trendsamples for objectId " + trendId
                     + ", after date "+ onAndAfterDateTime + ". Reason: " + e.getMessage(), e);
         }
 

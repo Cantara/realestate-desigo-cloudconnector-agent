@@ -14,7 +14,6 @@ import no.cantara.realestate.desigo.cloudconnector.status.TemporaryHealthResourc
 import no.cantara.realestate.distribution.ObservationDistributionClient;
 import no.cantara.realestate.mappingtable.MappedSensorId;
 import no.cantara.realestate.mappingtable.desigo.DesigoSensorId;
-import no.cantara.realestate.mappingtable.metasys.MetasysSensorId;
 import no.cantara.realestate.mappingtable.repository.MappedIdQuery;
 import no.cantara.realestate.mappingtable.repository.MappedIdRepository;
 import no.cantara.realestate.mappingtable.repository.MappedIdRepositoryImpl;
@@ -134,10 +133,10 @@ public class MappedIdBasedImporter implements TrendLogsImporter, PresentValueImp
             //TODO take and skip need logic
             int take = 200;
             int skip = 0;
-            if (mappedSensorId.getSensorId() != null && mappedSensorId.getSensorId() instanceof MetasysSensorId) {
+            if (mappedSensorId.getSensorId() != null && mappedSensorId.getSensorId() instanceof DesigoSensorId) {
 
-                MetasysSensorId sensorId = (MetasysSensorId) mappedSensorId.getSensorId();
-                String trendId = sensorId.getMetasysObjectId();
+                DesigoSensorId sensorId = (DesigoSensorId) mappedSensorId.getSensorId();
+                String trendId = sensorId.getTrendId();
                 if (trendId == null) {
                     log.warn("TrendId is null for sensorId: {}", sensorId);
                 } else {
