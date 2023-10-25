@@ -18,7 +18,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class SdClientSimulator implements SdClient {
 
     private static final Logger log = getLogger(SdClientSimulator.class);
-    private Map<String, Map<Instant, MetasysTrendSample>> simulatedSDApiData = new ConcurrentHashMap();
+    private Map<String, Map<Instant, DesigoTrendSample>> simulatedSDApiData = new ConcurrentHashMap();
     boolean scheduled_simulator_started = true;
     private final int SECONDS_BETWEEN_SCHEDULED_IMPORT_RUNS = 3;
 
@@ -46,11 +46,11 @@ public class SdClientSimulator implements SdClient {
     }
 
     @Override
-    public Set<MetasysTrendSample> findTrendSamples(String bearerToken, String trendId) throws URISyntaxException {
+    public Set<DesigoTrendSample> findTrendSamples(String bearerToken, String trendId) throws URISyntaxException {
         String prefixedUrlEncodedTrendId = encodeAndPrefix(trendId);
         Instant i = Instant.now().minus(1, ChronoUnit.DAYS);
-        Set<MetasysTrendSample> trendSamples = new HashSet<>();
-        Map<Instant, MetasysTrendSample> trendTimeSamples = simulatedSDApiData.get(prefixedUrlEncodedTrendId);
+        Set<DesigoTrendSample> trendSamples = new HashSet<>();
+        Map<Instant, DesigoTrendSample> trendTimeSamples = simulatedSDApiData.get(prefixedUrlEncodedTrendId);
         for (Instant t : trendTimeSamples.keySet()) {
             if (t.isAfter(i)) {
                 trendSamples.add(trendTimeSamples.get(t));
@@ -70,11 +70,11 @@ public class SdClientSimulator implements SdClient {
     }
 
     @Override
-    public Set<MetasysTrendSample> findTrendSamples(String trendId, int take, int skip) throws URISyntaxException {
+    public Set<DesigoTrendSample> findTrendSamples(String trendId, int take, int skip) throws URISyntaxException {
         String prefixedUrlEncodedTrendId = encodeAndPrefix(trendId);
         Instant i = Instant.now().minus(1, ChronoUnit.DAYS);
-        Set<MetasysTrendSample> trendSamples = new HashSet<>();
-        Map<Instant, MetasysTrendSample> trendTimeSamples = simulatedSDApiData.get(prefixedUrlEncodedTrendId);
+        Set<DesigoTrendSample> trendSamples = new HashSet<>();
+        Map<Instant, DesigoTrendSample> trendTimeSamples = simulatedSDApiData.get(prefixedUrlEncodedTrendId);
         int count = 0;
         for (Instant t : trendTimeSamples.keySet()) {
             if (t.isAfter(i)) {
@@ -91,11 +91,11 @@ public class SdClientSimulator implements SdClient {
     }
 
     @Override
-    public Set<MetasysTrendSample> findTrendSamplesByDate(String trendId, int take, int skip, Instant onAndAfterDateTime) throws URISyntaxException {
+    public Set<DesigoTrendSample> findTrendSamplesByDate(String trendId, int take, int skip, Instant onAndAfterDateTime) throws URISyntaxException {
         String prefixedUrlEncodedTrendId = encodeAndPrefix(trendId);
         Instant i = onAndAfterDateTime;
-        Set<MetasysTrendSample> trendSamples = new HashSet<>();
-        Map<Instant, MetasysTrendSample> trendTimeSamples = simulatedSDApiData.get(prefixedUrlEncodedTrendId);
+        Set<DesigoTrendSample> trendSamples = new HashSet<>();
+        Map<Instant, DesigoTrendSample> trendTimeSamples = simulatedSDApiData.get(prefixedUrlEncodedTrendId);
         int count = 0;
         if (trendTimeSamples != null) {
             for (Instant t : trendTimeSamples.keySet()) {
@@ -195,13 +195,13 @@ public class SdClientSimulator implements SdClient {
     }
 
     private void addSimulatedSDTrendSample(String trendId) {
-        MetasysTrendSample ts = new MetasysTrendSample();
+        DesigoTrendSample ts = new DesigoTrendSample();
         ts.setTrendId(trendId);
         Instant ti = Instant.now();
         ts.setTimestamp(ti.toString());
         Integer randomValue = ThreadLocalRandom.current().nextInt(50);
-        ts.setValueDeep(randomValue);
-        Map<Instant, MetasysTrendSample> tsMap = simulatedSDApiData.get(trendId);
+        ts.setValue(randomValue.toString());
+        Map<Instant, DesigoTrendSample> tsMap = simulatedSDApiData.get(trendId);
         if (tsMap == null) {
             tsMap = new ConcurrentHashMap<>();
         }

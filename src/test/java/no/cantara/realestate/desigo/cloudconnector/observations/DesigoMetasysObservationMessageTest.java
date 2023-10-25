@@ -1,6 +1,6 @@
 package no.cantara.realestate.desigo.cloudconnector.observations;
 
-import no.cantara.realestate.desigo.cloudconnector.automationserver.MetasysTrendSample;
+import no.cantara.realestate.desigo.cloudconnector.automationserver.DesigoTrendSample;
 import no.cantara.realestate.mappingtable.MappedSensorId;
 import no.cantara.realestate.mappingtable.SensorId;
 import no.cantara.realestate.mappingtable.rec.SensorRecObject;
@@ -14,14 +14,14 @@ import static org.mockito.Mockito.when;
 
 class DesigoMetasysObservationMessageTest {
 
-    private MetasysTrendSample trendSample;
+    private DesigoTrendSample trendSample;
     private MappedSensorId mappedSensorId;
     private SensorRecObject rec;
     private SensorId sensorId;
 
     @BeforeEach
     void setUp() {
-        trendSample = mock(MetasysTrendSample.class);
+        trendSample = mock(DesigoTrendSample.class);
         mappedSensorId = mock(MappedSensorId.class);
         rec = mock(SensorRecObject.class);
         sensorId = mock(SensorId.class);

@@ -148,7 +148,7 @@ public class MappedIdBasedImporter implements TrendLogsImporter, PresentValueImp
 
                     log.trace("Try import of trendId: {} from: {}", trendId, importFrom);
                     try {
-                        Set<MetasysTrendSample> trendSamples = basClient.findTrendSamplesByDate(trendId, take, skip, importFrom);
+                        Set<DesigoTrendSample> trendSamples = basClient.findTrendSamplesByDate(trendId, take, skip, importFrom);
                         if (trendSamples != null) {
                             log.trace("Found {} samples for trendId: {}", trendSamples.size(), trendId);
                             if (trendSamples.size() > 0) {
@@ -156,7 +156,7 @@ public class MappedIdBasedImporter implements TrendLogsImporter, PresentValueImp
                             }
 
                             successfulImport++;
-                            for (MetasysTrendSample trendSample : trendSamples) {
+                            for (DesigoTrendSample trendSample : trendSamples) {
                                 ObservationMessage observationMessage = new DesigoObservationMessage(trendSample, mappedSensorId);
                                 distributionClient.publish(observationMessage);
                             }

@@ -7,11 +7,11 @@ import java.time.Instant;
 import java.util.Set;
 
 public interface SdClient {
-    Set<MetasysTrendSample> findTrendSamples(String bearerToken, String trendId) throws URISyntaxException;
+    Set<DesigoTrendSample> findTrendSamples(String bearerToken, String trendId) throws URISyntaxException;
 
-    Set<MetasysTrendSample> findTrendSamples(String trendId, int take, int skip) throws URISyntaxException, SdLogonFailedException;
+    Set<DesigoTrendSample> findTrendSamples(String trendId, int take, int skip) throws URISyntaxException, SdLogonFailedException;
 
-    Set<MetasysTrendSample> findTrendSamplesByDate(String trendId, int take, int skip, Instant onAndAfterDateTime) throws URISyntaxException, SdLogonFailedException;
+    Set<DesigoTrendSample> findTrendSamplesByDate(String trendId, int take, int skip, Instant onAndAfterDateTime) throws URISyntaxException, SdLogonFailedException;
 
     Integer subscribePresentValueChange(String subscriptionId, String objectId) throws URISyntaxException, SdLogonFailedException;
 

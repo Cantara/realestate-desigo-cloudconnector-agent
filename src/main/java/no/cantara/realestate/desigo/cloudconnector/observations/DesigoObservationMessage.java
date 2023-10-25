@@ -1,7 +1,7 @@
 package no.cantara.realestate.desigo.cloudconnector.observations;
 
 import no.cantara.realestate.desigo.cloudconnector.automationserver.DesigoPresentValue;
-import no.cantara.realestate.desigo.cloudconnector.automationserver.MetasysTrendSample;
+import no.cantara.realestate.desigo.cloudconnector.automationserver.DesigoTrendSample;
 import no.cantara.realestate.desigo.cloudconnector.sensors.MeasurementUnit;
 import no.cantara.realestate.desigo.cloudconnector.sensors.SensorType;
 import no.cantara.realestate.mappingtable.MappedSensorId;
@@ -16,14 +16,14 @@ import java.util.Objects;
 
 public class DesigoObservationMessage extends ObservationMessage {
 
-    private final MetasysTrendSample trendSample;
+    private final DesigoTrendSample trendSample;
 
     private final DesigoPresentValue presentValue;
     private final MappedSensorId mappedSensorId;
 
     private final ObservedValueNumber observedValue;
 
-    public DesigoObservationMessage(MetasysTrendSample trendSample, MappedSensorId mappedSensorId) {
+    public DesigoObservationMessage(DesigoTrendSample trendSample, MappedSensorId mappedSensorId) {
         this.trendSample = trendSample;
         this.mappedSensorId = mappedSensorId;
         observedValue = null;

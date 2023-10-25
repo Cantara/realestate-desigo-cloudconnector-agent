@@ -79,8 +79,8 @@ public class DesigoApiClientRest implements SdClient {
 
         DesigoApiClientRest apiClient = new DesigoApiClientRest(apiUri, new SlackNotificationService());
         String bearerToken = apiClient.findAccessToken();
-        Set<MetasysTrendSample> trends = apiClient.findTrendSamples(bearerToken, trendId);
-        for (MetasysTrendSample trend : trends) {
+        Set<DesigoTrendSample> trends = apiClient.findTrendSamples(bearerToken, trendId);
+        for (DesigoTrendSample trend : trends) {
             if (trend != null) {
                 log.info("Trend id={}, value={}, valid={}", trend.getTrendId(), trend.getValue(), trend.isValid());
             } else {
@@ -90,7 +90,7 @@ public class DesigoApiClientRest implements SdClient {
     }
 
     @Override
-    public Set<MetasysTrendSample> findTrendSamples(String bearerToken, String trendId) throws URISyntaxException {
+    public Set<DesigoTrendSample> findTrendSamples(String bearerToken, String trendId) throws URISyntaxException {
         String apiUrl = getConfigValue("sd.api.url"); //getConfigProperty("sd.api.url");
 
         URI apiUri = new URI(apiUrl);
@@ -101,7 +101,7 @@ public class DesigoApiClientRest implements SdClient {
     }
 
     @Override
-    public Set<MetasysTrendSample> findTrendSamples(String trendId, int take, int skip) throws URISyntaxException, SdLogonFailedException {
+    public Set<DesigoTrendSample> findTrendSamples(String trendId, int take, int skip) throws URISyntaxException, SdLogonFailedException {
         String apiUrl = getConfigValue("sd.api.url");
         String prefixedUrlEncodedTrendId = encodeAndPrefix(trendId);
         String bearerToken = findAccessToken();
@@ -113,7 +113,7 @@ public class DesigoApiClientRest implements SdClient {
     }
 
     @Override
-    public Set<MetasysTrendSample> findTrendSamplesByDate(String objectId, int take, int skip, Instant onAndAfterDateTime) throws URISyntaxException, SdLogonFailedException {
+    public Set<DesigoTrendSample> findTrendSamplesByDate(String objectId, int take, int skip, Instant onAndAfterDateTime) throws URISyntaxException, SdLogonFailedException {
 
         String apiUrl = getConfigValue("sd.api.url");
         String prefixedUrlEncodedTrendId = encodeAndPrefix(objectId);
@@ -121,7 +121,7 @@ public class DesigoApiClientRest implements SdClient {
         URI samplesUri = new URI(apiUrl + "objects/" + objectId+"/trendedAttributes/presentValue/samples");
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpGet request = null;
-        List<MetasysTrendSample> trendSamples = new ArrayList<>();
+        List<DesigoTrendSample> trendSamples = new ArrayList<>();
         try {
 
             String startTime = onAndAfterDateTime.toString();
@@ -129,7 +129,7 @@ public class DesigoApiClientRest implements SdClient {
             int pageSize=1000;
             String endTime = Instant.now().plusSeconds(60).toString();
 
-//        MetasysTrendSampleResult trendSampleResult = trendSampleService.findTrendSamplesByDate("Bearer " + bearerToken, prefixedUrlEncodedTrendId, pageSize, page, startTime, endTime);
+//        DesigoTrendSampleResult trendSampleResult = trendSampleService.findTrendSamplesByDate("Bearer " + bearerToken, prefixedUrlEncodedTrendId, pageSize, page, startTime, endTime);
             log.trace("findTrendSamplesByDate. trendId: {}. From date: {}. To date: {}. Page: {}. PageSize: {}. Take: {}. Skip: {}",
                     objectId, onAndAfterDateTime, endTime, page, pageSize, take, skip);
             List<NameValuePair> nvps = new ArrayList<>();
@@ -154,11 +154,11 @@ public class DesigoApiClientRest implements SdClient {
                     if (entity != null) {
                         String body = EntityUtils.toString(entity);
                         log.trace("Received body: {}", body);
-                        MetasysTrendSampleResult trendSampleResult = TrendSamplesMapper.mapFromJson(body);
+                        DesigoTrendSampleResult trendSampleResult = TrendSamplesMapper.mapFromJson(body);
                         log.trace("Found: {} trends from trendId: {}", trendSampleResult.getTotal(), objectId);
-                         trendSamples = trendSampleResult.getItems();
+                         trendSamples = trendSampleResult.getSeriesWithObjectAndPropertyId();
                         if (trendSamples != null) {
-                            for (MetasysTrendSample trendSample : trendSamples) {
+                            for (DesigoTrendSample trendSample : trendSamples) {
                                 trendSample.setTrendId(objectId);
                                 log.trace("imported trendSample: {}", trendSample);
                             }
@@ -186,17 +186,17 @@ public class DesigoApiClientRest implements SdClient {
 
 
 
-//        MetasysTrendSampleResult trendSampleResult = trendSampleService.findTrendSamplesByDate("Bearer " + bearerToken, prefixedUrlEncodedTrendId, pageSize, page, startTime, endTime);
+//        DesigoTrendSampleResult trendSampleResult = trendSampleService.findTrendSamplesByDate("Bearer " + bearerToken, prefixedUrlEncodedTrendId, pageSize, page, startTime, endTime);
         log.trace("findTrendSamplesByDate. trendId: {}. From date: {}. To date: {}. Page: {}. PageSize: {}. Take: {}. Skip: {}",
                 objectId, onAndAfterDateTime, endTime, page, pageSize, take, skip);
         String trendSamplesJson = trendSampleService.findTrendSamplesByDateJson("Bearer " + bearerToken, prefixedUrlEncodedTrendId, pageSize, page, startTime, endTime);
 
 
-        MetasysTrendSampleResult trendSampleResult = TrendSamplesMapper.mapFromJson(trendSamplesJson);
+        DesigoTrendSampleResult trendSampleResult = TrendSamplesMapper.mapFromJson(trendSamplesJson);
         log.trace("Found: {} trends from trendId: {}", trendSampleResult.getTotal(), objectId);
-        List<MetasysTrendSample> trendSamples = trendSampleResult.getItems();
+        List<DesigoTrendSample> trendSamples = trendSampleResult.getItems();
         if (trendSamples != null) {
-            for (MetasysTrendSample trendSample : trendSamples) {
+            for (DesigoTrendSample trendSample : trendSamples) {
                 trendSample.setTrendId(objectId);
                 log.trace("imported trendSample: {}", trendSample);
             }
@@ -217,7 +217,7 @@ public class DesigoApiClientRest implements SdClient {
         URI presentValueUri = new URI(apiUrl + "values/" + objectOrPropertyId);
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpGet request = null;
-        List<MetasysTrendSample> trendSamples = new ArrayList<>();
+        List<DesigoTrendSample> trendSamples = new ArrayList<>();
         try {
             log.trace("findPresentValue. objectOrPropertyId: {}.",objectOrPropertyId);
             request = new HttpGet(presentValueUri);

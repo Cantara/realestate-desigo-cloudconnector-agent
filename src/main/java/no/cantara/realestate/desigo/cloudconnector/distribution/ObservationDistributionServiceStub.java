@@ -1,6 +1,6 @@
 package no.cantara.realestate.desigo.cloudconnector.distribution;
 
-import no.cantara.realestate.desigo.cloudconnector.automationserver.MetasysTrendSample;
+import no.cantara.realestate.desigo.cloudconnector.automationserver.DesigoTrendSample;
 import no.cantara.realestate.desigo.cloudconnector.sensors.MeasurementUnit;
 import no.cantara.realestate.desigo.cloudconnector.sensors.SensorType;
 import no.cantara.realestate.distribution.ObservationDistributionClient;
@@ -74,7 +74,7 @@ public class ObservationDistributionServiceStub implements ObservationDistributi
     }
 
 
-    public void publishAll(Set<MetasysTrendSample> trendSamples, MappedSensorId mappedSensorId) {
+    public void publishAll(Set<DesigoTrendSample> trendSamples, MappedSensorId mappedSensorId) {
         ObservationMessage messageTemplate;
         SensorRecObject sensorRecObject = mappedSensorId.getRec();
         String recId = sensorRecObject.getRecId();
@@ -97,7 +97,7 @@ public class ObservationDistributionServiceStub implements ObservationDistributi
         messageTemplate = new ObservationMessage(recId, tfm, realEstate, building, floor, section, servesRoom, placementRoom, climateZone, electrcityZone, name, sensorType.name(), measurementUnit.name());
         messageTemplate.setClimateZone(sensorRecObject.getClimateZone());
         messageTemplate.setElectricityZone(sensorRecObject.getElectricityZone());
-        for (MetasysTrendSample trendSample : trendSamples) {
+        for (DesigoTrendSample trendSample : trendSamples) {
             try {
                 ObservationMessage observationMessage = (ObservationMessage) messageTemplate.clone();
 
