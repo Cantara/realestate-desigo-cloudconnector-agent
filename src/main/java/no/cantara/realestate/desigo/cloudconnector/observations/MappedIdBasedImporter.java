@@ -149,14 +149,15 @@ public class MappedIdBasedImporter implements TrendLogsImporter, PresentValueImp
                 DesigoSensorId sensorId = (DesigoSensorId) mappedSensorId.getSensorId();
                 String trendId = sensorId.getTrendId();
                 if (trendId == null) {
-                    log.warn("TrendId is null for sensorId: {}", sensorId);
+                    log.trace("TrendId is null for sensorId: {}. Will not attempt to import trend observations.", sensorId);
                 } else {
                     Instant importFrom = lastSuccessfulImportAt.get(trendId);
                     if (importFrom == null) {
                         importFrom = fromDateTime;
                     }
 
-                    log.trace("Try import of trendId: {} from: {}", trendId, importFrom);
+
+                    log.trace("Try to import trendId: {} from: {}", trendId, importFrom);
                     try {
                         Set<DesigoTrendSample> trendSamples = basClient.findTrendSamplesByDate(trendId, take, skip, importFrom);
                         if (trendSamples != null) {

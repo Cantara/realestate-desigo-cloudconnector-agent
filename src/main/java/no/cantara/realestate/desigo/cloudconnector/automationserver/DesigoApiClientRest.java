@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -124,10 +125,10 @@ public class DesigoApiClientRest implements SdClient {
         List<DesigoTrendSample> trendSamples = new ArrayList<>();
         try {
 
-            String startTime = onAndAfterDateTime.toString();
+            String startTime = onAndAfterDateTime.truncatedTo(ChronoUnit.SECONDS).toString();
             int page=1;
             int pageSize=1000;
-            String endTime = Instant.now().plusSeconds(60).toString();
+            String endTime = Instant.now().plusSeconds(60).truncatedTo(ChronoUnit.SECONDS).toString();
 
 //        DesigoTrendSampleResult trendSampleResult = trendSampleService.findTrendSamplesByDate("Bearer " + bearerToken, prefixedUrlEncodedTrendId, pageSize, page, startTime, endTime);
             log.trace("findTrendSamplesByDate. trendId: {}. From date: {}. To date: {}. Page: {}. PageSize: {}. Take: {}. Skip: {}",
