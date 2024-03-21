@@ -14,6 +14,8 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.Objects;
 
+import static no.cantara.realestate.utils.StringUtils.hasValue;
+
 public class DesigoObservationMessage extends ObservationMessage {
 
     private final DesigoTrendSample trendSample;
@@ -49,7 +51,7 @@ public class DesigoObservationMessage extends ObservationMessage {
     protected void buildObservation() {
         SensorRecObject rec = mappedSensorId.getRec();
         SensorId sensorId = mappedSensorId.getSensorId();
-        if (sensorId.getId() != null && sensorId.getId().isEmpty()) {
+        if (hasValue(sensorId.getId())) {
             setSensorId(sensorId.getId());
         } else {
             setSensorId(rec.getRecId());

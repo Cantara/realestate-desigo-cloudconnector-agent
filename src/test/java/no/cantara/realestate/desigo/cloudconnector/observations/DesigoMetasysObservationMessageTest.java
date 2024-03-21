@@ -46,4 +46,13 @@ class DesigoMetasysObservationMessageTest {
         assertEquals("testTfm", message.getTfm());
 
     }
+
+    @Test
+    void verifySensorIdIsSet() {
+        when(mappedSensorId.getSensorId()).thenReturn(sensorId);
+        when(sensorId.getId()).thenReturn("sensorId1");
+        assertEquals("sensorId1", mappedSensorId.getSensorId().getId());
+        DesigoObservationMessage message = new DesigoObservationMessage(trendSample, mappedSensorId);
+        assertEquals("sensorId1", message.getSensorId());
+    }
 }
