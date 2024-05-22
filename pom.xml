@@ -40,7 +40,7 @@
     <dependency>
       <groupId>no.cantara.realestate</groupId>
       <artifactId>mappingtable-lib</artifactId>
-      <version>0.4.5</version>
+      <version>0.4.6</version>
     </dependency>
     <dependency>
       <groupId>no.cantara.realestate</groupId>
